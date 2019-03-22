@@ -1,0 +1,3 @@
+# GetVMUptime.ps1
+
+Get-VM | Where {$_.state -eq 'running'} | Sort Uptime | Select Name,Uptime,@{N="Memory/MB";E={$_.MemoryAssigned/1MB}} 

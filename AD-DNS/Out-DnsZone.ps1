@@ -1,0 +1,2 @@
+# Get zones from local DNS server and export them to a text file. Export-DnsServerZone chokes on file paths, file will write to \Windows\SYSTEM32\dns
+Get-DnsServerZone | Where-Object { $_.IsAutoCreated -eq $False } | ForEach { Export-DnsServerZone -Name $_.ZoneName -FileName ($_.ZoneName + ".txt") -Verbose }

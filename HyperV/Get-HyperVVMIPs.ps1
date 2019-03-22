@@ -1,0 +1,1 @@
+﻿Get-VM -ComputerName hv1 | ?{$_.State -eq "Running"} |  Get-VMNetworkAdapter | Select VMName, IPAddresses
