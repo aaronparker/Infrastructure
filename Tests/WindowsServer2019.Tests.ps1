@@ -56,7 +56,7 @@ Describe 'Windows Server 2019 validation tests' {
             $Update.KB | Should -BeIn $InstalledUpdates.HotFixID
         }
         Write-Host -ForegroundColor Cyan "Getting latest .NET Framework Update."
-        $Updates = Get-LatestNetFrameworkUpdate -OperatingSystem Windows10 | Where-Object { ($_.Architecture -eq "x64") -and ($_.Version -eq "1809") } | Select-Object -Last 1
+        $Updates = Get-LatestNetFrameworkUpdate -OperatingSystem Windows10 | Where-Object { ($_.Architecture -eq "x64") -and ($_.Version -eq "1809") }
         ForEach ($Update in $Updates) {
             It "Has the latest .NET Framework Update installed" {
                 $Update.KB | Should -BeIn $InstalledUpdates.HotFixID
