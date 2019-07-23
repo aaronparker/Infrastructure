@@ -6,7 +6,7 @@
 [CmdletBinding()]
 Param()
 
-Write-Host -ForegroundColor Cyan "Checking required module versions."
+Write-Host -ForegroundColor Cyan "`nChecking required module versions."
 $Modules = @("Pester", "LatestUpdate")
 ForEach ($Module in $Modules) {
     If ([Version]((Find-Module -Name $Module).Version) -gt (Get-Module -Name $Module | Select-Object -Last 1).Version) {
@@ -23,7 +23,7 @@ Describe 'Windows 10 1903 validation tests' {
         }
     }
 
-    Write-Host -ForegroundColor Cyan "Getting Windows feature states."
+    Write-Host -ForegroundColor Cyan "`nGetting Windows feature states."
     $Features = Get-WindowsOptionalFeature -Online
 
     $NotInstalled = @("SMB1Protocol", "SMB1Protocol-Client", "SMB1Protocol-Server", "Printing-XPSServices-Features", `
@@ -43,20 +43,20 @@ Describe 'Windows 10 1903 validation tests' {
         }
     }
 
-    Write-Host -ForegroundColor Cyan "Getting installed Hotfixes."
+    Write-Host -ForegroundColor Cyan "`nGetting installed Hotfixes."
     $InstalledUpdates = Get-Hotfix
     Context "Validate installed updates" {
         It "Has the latest Cumulative Update installed" {
-            Write-Host -ForegroundColor Cyan "Getting latest Cumulative Update."
+            Write-Host -ForegroundColor Cyan "`nGetting latest Cumulative Update."
             $Update = Get-LatestCumulativeUpdate -OperatingSystem Windows10 -Version 1903 | Where-Object { $_.Architecture -eq "x64" } | Select-Object -Last 1
             $Update.KB | Should -BeIn $InstalledUpdates.HotFixID
         }
         It "Has the latest Servicing Stack Update installed" {
-            Write-Host -ForegroundColor Cyan "Getting latest Servicing Stack Update."
+            Write-Host -ForegroundColor Cyan "`nGetting latest Servicing Stack Update."
             $Update = Get-LatestServicingStackUpdate -OperatingSystem Windows10 -Version 1903 | Where-Object { $_.Architecture -eq "x64" } | Select-Object -Last 1
             $Update.KB | Should -BeIn $InstalledUpdates.HotFixID
         }
-        Write-Host -ForegroundColor Cyan "Getting latest .NET Framework Update."
+        Write-Host -ForegroundColor Cyan "`nGetting latest .NET Framework Update."
         $Updates = Get-LatestNetFrameworkUpdate -OperatingSystem Windows10 | Where-Object { ($_.Architecture -eq "x64") -and ($_.Version -eq "1903") }
         ForEach ($Update in $Updates) {
             It "Has the latest .NET Framework Update installed" {
@@ -64,7 +64,7 @@ Describe 'Windows 10 1903 validation tests' {
             }
         }
         It "Has the latest Adobe Flash Player Update installed" {
-            Write-Host -ForegroundColor Cyan "Getting latest Adobe Flash Player Update."
+            Write-Host -ForegroundColor Cyan "`nGetting latest Adobe Flash Player Update."
             $Update = Get-LatestAdobeFlashUpdate -OperatingSystem Windows10 -Version 1903 | Where-Object { $_.Architecture -eq "x64" } | Select-Object -Last 1
             $Update.KB | Should -BeIn $InstalledUpdates.HotFixID
         }
