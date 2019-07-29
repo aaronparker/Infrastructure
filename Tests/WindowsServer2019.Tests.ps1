@@ -10,7 +10,7 @@ Param(
 )
 
 Write-Host -ForegroundColor Cyan "`n`tChecking required module versions."
-$Modules = @("Pester", "LatestUpdate", "VcRedist")
+$Modules = @("LatestUpdate", "VcRedist")
 ForEach ($Module in $Modules) {
     If ([Version]((Find-Module -Name $Module).Version) -gt [Version]((Get-Module -Name $Module | Select-Object -Last 1).Version)) {
         Write-Host -ForegroundColor Cyan "`tInstalling latest $Module module."
