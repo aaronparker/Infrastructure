@@ -9,7 +9,7 @@
 
 Function Get-HypervVMUUID {
 
-   <#
+    <#
         .SYNOPSIS
             Retrieve the UUID from a virtual machine or set of virtual machines.
  
@@ -46,12 +46,12 @@ http://stealthpuppy.com/retrieving-a-vms-uuid-from-hyperv/
  
     #>
 
-    [cmdletbinding(SupportsShouldProcess=$True)]
+    [cmdletbinding(SupportsShouldProcess = $True)]
     param(
-        [Parameter(Mandatory=$false,HelpMessage="Specifies one or more Hyper-V hosts from which virtual machine UUIDs are to be retrieved. NetBIOS names, IP addresses, and fully-qualified domain names are allowable. The default is the local computer — use ""localhost"" or a dot (""."") to specify the local computer explicitly.")]
+        [Parameter(Mandatory = $false, HelpMessage = "Specifies one or more Hyper-V hosts from which virtual machine UUIDs are to be retrieved. NetBIOS names, IP addresses, and fully-qualified domain names are allowable. The default is the local computer — use ""localhost"" or a dot (""."") to specify the local computer explicitly.")]
         [string]$ComputerName,
 
-        [Parameter(Mandatory=$false, Position=0,HelpMessage="Specifies the virtual machine from which to retrieve the UUID.")]
+        [Parameter(Mandatory = $false, Position = 0, HelpMessage = "Specifies the virtual machine from which to retrieve the UUID.")]
         [string[]]$VM
     )
 
@@ -60,9 +60,10 @@ http://stealthpuppy.com/retrieving-a-vms-uuid-from-hyperv/
 
     # If VM parameter is specified, return those VMs, else return all VMs
     If ($VM) {
-        $UUIDs = Get-VM -ComputerName $ComputerName -VM $VM -ErrorAction SilentlyContinue | Select-Object Name,@{Name="BIOSGUID";Expression={(Get-WmiObject -ComputerName $_.ComputerName -Namespace "root\virtualization\v2" -Class Msvm_VirtualSystemSettingData -Property BIOSGUID -Filter ("InstanceID = 'Microsoft:{0}'" -f $_.VMId.Guid)).BIOSGUID}}
-    } Else {
-        $UUIDs = Get-VM -ComputerName $ComputerName -ErrorAction SilentlyContinue | Select-Object Name,@{Name="BIOSGUID";Expression={(Get-WmiObject -ComputerName $_.ComputerName -Namespace "root\virtualization\v2" -Class Msvm_VirtualSystemSettingData -Property BIOSGUID -Filter ("InstanceID = 'Microsoft:{0}'" -f $_.VMId.Guid)).BIOSGUID}}
+        $UUIDs = Get-VM -ComputerName $ComputerName -VM $VM -ErrorAction SilentlyContinue | Select-Object Name, @{Name = "BIOSGUID"; Expression = { (Get-WmiObject -ComputerName $_.ComputerName -Namespace "root\virtualization\v2" -Class Msvm_VirtualSystemSettingData -Property BIOSGUID -Filter ("InstanceID = 'Microsoft:{0}'" -f $_.VMId.Guid)).BIOSGUID } }
+    }
+    Else {
+        $UUIDs = Get-VM -ComputerName $ComputerName -ErrorAction SilentlyContinue | Select-Object Name, @{Name = "BIOSGUID"; Expression = { (Get-WmiObject -ComputerName $_.ComputerName -Namespace "root\virtualization\v2" -Class Msvm_VirtualSystemSettingData -Property BIOSGUID -Filter ("InstanceID = 'Microsoft:{0}'" -f $_.VMId.Guid)).BIOSGUID } }
     }
 
     # Remove curly brackets from the UUIDs and return the array

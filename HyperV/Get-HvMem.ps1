@@ -19,7 +19,7 @@
  
     #>
     param(
-        [Parameter(Mandatory=$true, Position=0,HelpMessage="Hyper-V host.")]
+        [Parameter(Mandatory = $true, Position = 0, HelpMessage = "Hyper-V host.")]
         [string[]]$ComputerName = $(throw = "Please specify a remote Hyper-V host to gather memory details from.")
     )
 

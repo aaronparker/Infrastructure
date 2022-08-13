@@ -6,17 +6,17 @@ Set-PowerCLIConfiguration -InvalidCertificateAction Ignore -Scope Session -Confi
 
 Connect-VIServer -Server $esxiHost -User root -Password Passw0rd
 
-Get-VMHost | Sort | Select Name,
-@{ N="CurrentPolicy"; E={$_.ExtensionData.config.PowerSystemInfo.CurrentPolicy.ShortName}},
-@{ N="CurrentPolicyKey"; E={$_.ExtensionData.config.PowerSystemInfo.CurrentPolicy.Key}},
-@{ N="AvailablePolicies"; E={$_.ExtensionData.config.PowerSystemCapability.AvailablePolicy.ShortName}}
+Get-VMHost | Sort | select Name,
+@{ N = "CurrentPolicy"; E = { $_.ExtensionData.config.PowerSystemInfo.CurrentPolicy.ShortName } },
+@{ N = "CurrentPolicyKey"; E = { $_.ExtensionData.config.PowerSystemInfo.CurrentPolicy.Key } },
+@{ N = "AvailablePolicies"; E = { $_.ExtensionData.config.PowerSystemCapability.AvailablePolicy.ShortName } }
 
 $view = (Get-VMHost $esxiHost | Get-View)
 (Get-View $view.ConfigManager.PowerSystem).ConfigurePowerPolicy(2)
 
 
 
-Function Set-VMHostPowerPolicy{
+Function Set-VMHostPowerPolicy {
     <#
         .SYNOPSIS
             remove items from folders recursively.
@@ -61,11 +61,11 @@ Function Set-VMHostPowerPolicy{
  
     #>
  
-    [cmdletbinding(SupportsShouldProcess=$True)]
+    [cmdletbinding(SupportsShouldProcess = $True)]
     param(
-        [Parameter(Mandatory=$true, Position=0,HelpMessage="Number of days to filter by, E.G. ""14""")]
+        [Parameter(Mandatory = $true, Position = 0, HelpMessage = "Number of days to filter by, E.G. ""14""")]
         [int]$days,
-        [Parameter(Mandatory=$true, Position=1,HelpMessage="Path to files you wish to delete")]
+        [Parameter(Mandatory = $true, Position = 1, HelpMessage = "Path to files you wish to delete")]
         [string]$path,
         [string]$typefilter,
         [switch]$silent)
@@ -82,4 +82,4 @@ Get-AdvancedSetting -Entity (Get-VMHost $esxiHost) -Name 'Power.CPUPolicy' | Set
 
 Set-AdvancedSetting -AdvancedSetting 
 
-Get-AdvancedSetting -Entity (Get-VMHost $esxiHost) | Select * | ft
+Get-AdvancedSetting -Entity (Get-VMHost $esxiHost) | select * | ft

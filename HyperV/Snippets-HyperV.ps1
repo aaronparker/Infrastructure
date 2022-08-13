@@ -23,4 +23,4 @@ Get-VMScsiController -ComputerName $hvHost -VMName $vmName | Add-VMDvdDrive -Pat
 Get-VM -ComputerName $hvHost -VMName $vmName | Add-VMDvdDrive -Path $bootISO
 
 # Set all VM DVD drives to nothing
-Get-VM | Get-VmDvdDrive | ForEach { Set-VMDvdDrive -Path $Null }
+Get-VM | Get-VmDvdDrive | foreach { Set-VMDvdDrive -Path $Null }

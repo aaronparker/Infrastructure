@@ -34,14 +34,14 @@ Function Delete-vSphereVM {
  
      #>
   
-    [CmdletBinding(SupportsShouldProcess=$True)]
+    [CmdletBinding(SupportsShouldProcess = $True)]
     Param(
-        [Parameter(Mandatory=$False, ValueFromPipeline=$True, HelpMessage="Specify the VM to retrive the UUID from.")]
+        [Parameter(Mandatory = $False, ValueFromPipeline = $True, HelpMessage = "Specify the VM to retrive the UUID from.")]
         [System.Object]$VM,
 
-        [Parameter(Mandatory=$False, ValueFromPipeline=$False, HelpMessage="Specify the VM name to delete.")]
+        [Parameter(Mandatory = $False, ValueFromPipeline = $False, HelpMessage = "Specify the VM name to delete.")]
         [System.Object]$Name
-        )
+    )
  
     BEGIN {
     }
@@ -54,8 +54,8 @@ Function Delete-vSphereVM {
         Do {
             $targetVM = Get-VM | Where-Object { $_.name -eq $vm.Name }
             Switch ($TargetVM.PowerState) {
-                {$_ -eq "PoweredOff"}{$Seconds = 0; break}
-                {$_ -eq "PoweredOn"}{$Seconds = 10; break}
+                { $_ -eq "PoweredOff" } { $Seconds = 0; break }
+                { $_ -eq "PoweredOn" } { $Seconds = 10; break }
             }
             Start-Sleep $Seconds
         } Until ( $targetVM.PowerState -eq "PoweredOff" )

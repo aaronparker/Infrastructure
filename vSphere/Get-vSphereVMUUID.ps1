@@ -41,39 +41,39 @@ Function Get-vSphereVMUUID {
  
      #>
   
-    [CmdletBinding(SupportsShouldProcess=$True)]
+    [CmdletBinding(SupportsShouldProcess = $True)]
     Param(
-        [Parameter(Mandatory=$True, ValueFromPipeline=$True, HelpMessage="Specify the VM to retrive the UUID from.")]
+        [Parameter(Mandatory = $True, ValueFromPipeline = $True, HelpMessage = "Specify the VM to retrive the UUID from.")]
         [System.Object]$VM
-        )
+    )
  
     BEGIN {
     }
     
     PROCESS {
         # Retrive UUID from vSphere
-        $UUID = $VM | %{(Get-View $_.Id).config.UUID}
+        $UUID = $VM | % { (Get-View $_.Id).config.UUID }
 
         #Transpose UUID into expected format
         # Section 1
-        $UUID11 = $UUID.Substring(0,2)
-        $UUID12 = $UUID.Substring(2,2)
-        $UUID13 = $UUID.Substring(4,2)
-        $UUID14 = $UUID.Substring(6,2)
+        $UUID11 = $UUID.Substring(0, 2)
+        $UUID12 = $UUID.Substring(2, 2)
+        $UUID13 = $UUID.Substring(4, 2)
+        $UUID14 = $UUID.Substring(6, 2)
 
         # Section 2
-        $UUID21 = $UUID.Substring(9,2)
-        $UUID22 = $UUID.Substring(11,2)
+        $UUID21 = $UUID.Substring(9, 2)
+        $UUID22 = $UUID.Substring(11, 2)
 
         # Section 3 
-        $UUID31 = $UUID.Substring(14,2)
-        $UUID32 = $UUID.Substring(16,2)
+        $UUID31 = $UUID.Substring(14, 2)
+        $UUID32 = $UUID.Substring(16, 2)
 
         # Section 4
-        $UUID41 = $UUID.Substring(19,4)
+        $UUID41 = $UUID.Substring(19, 4)
 
         # Section 5
-        $UUID51 = $UUID.Substring(24,12)
+        $UUID51 = $UUID.Substring(24, 12)
 
         # Piece the strings together
         [string]$UUIDa = "$UUID14$UUID13$UUID12$UUID11"

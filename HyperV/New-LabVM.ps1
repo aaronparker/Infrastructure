@@ -49,14 +49,14 @@
         
         [Parameter (Mandatory = $False, HelpMessage = "Specify the number of vCPUs to be assigned to the virtual machine.")]
         [alias("ProcessorCount")]
-        [ValidateSet(1,2)][int]$CPUs = 2,
+        [ValidateSet(1, 2)][int]$CPUs = 2,
 
         [Parameter (Mandatory = $False, HelpMessage = "Specify the size of the virtual hard disk assigned to the virtual machine.")]
-        [ValidateRange(32,128)][int]$VHDSize = 64,
+        [ValidateRange(32, 128)][int]$VHDSize = 64,
 
         [Parameter (Mandatory = $False, HelpMessage = "Specify the virtual machine generation.")]
         [alias("Version")]
-        [ValidateSet(1,2)]$Generation = 2
+        [ValidateSet(1, 2)]$Generation = 2
     )
     
     BEGIN {        
@@ -68,7 +68,8 @@
 
                 # If a CIM session to the host exists, use that for authentication and connect to host
                 $oVmHost = Get-VMHost -CimSession $CimSession -ErrorAction "Stop"
-            } Else {
+            }
+            Else {
                 
                 # If no CIM session exists, assume pass-through authentication will work and connect to host
                 $oVmHost = Get-VMHost -ComputerName $VMHost -ErrorAction "Stop"   
@@ -91,13 +92,13 @@
     PROCESS {
 
         $Params = @{
-            Name = $Name
+            Name               = $Name
             MemoryStartupBytes = $memoryStartupBytes
             # NewVHDSizeBytes = $newVHDSizeBytes
             # NewVHDPath = $oVmHost.VirtualHardDiskPath + "\$Name.vhdx"
-            SwitchName = $oVmHost.ExternalNetworkAdapters[0].SwitchName
-            Generation = $Generation
-            BootDevice = $bootDevice
+            SwitchName         = $oVmHost.ExternalNetworkAdapters[0].SwitchName
+            Generation         = $Generation
+            BootDevice         = $bootDevice
         }
 
         # Create the new virtual machine
@@ -105,7 +106,8 @@
             Write-Host "CIM Session"
             $VHD = New-VHD -Path ($oVmHost.VirtualHardDiskPath + "\$Name.vhdx") -SizeBytes $newVHDSizeBytes -Dynamic -CimSession $CimSession -Verbose
             $VM = New-VM @Params -VHDPath ($oVmHost.VirtualHardDiskPath + "\$Name.vhdx") -CimSession $CimSession -Verbose
-        } Else {
+        }
+        Else {
             Write-Host "ComputerName"
             $VHD = New-VHD -Path ($oVmHost.VirtualHardDiskPath + "\$Name.vhdx") -SizeBytes $newVHDSizeBytes -Dynamic -ComputerName $VmHost -Verbose
             $VM = New-VM @Params -VHDPath ($oVmHost.VirtualHardDiskPath + "\$Name.vhdx") -ComputerName $VmHost -Verbose
@@ -120,17 +122,17 @@
         # Set VM boot order based on the VM generation
         Switch ( $Generation ) {
           
-          # Generation 1 VM  
-          1 {
-                $VM | Set-VMBios -StartupOrder @("CD","IDE","LegacyNetworkAdapter","Floppy")
-          }
+            # Generation 1 VM  
+            1 {
+                $VM | Set-VMBios -StartupOrder @("CD", "IDE", "LegacyNetworkAdapter", "Floppy")
+            }
           
-          # Generation 2 VM  
-          2 {
+            # Generation 2 VM  
+            2 {
                 $VM | Set-VMFirmware -FirstBootDevice $DVD -EnableSecureBoot On
             }
           
-          Default { Write-Host "Opps, shouldn't have gotten here." }
+            Default { Write-Host "Opps, shouldn't have gotten here." }
         }   
     }
 
@@ -139,7 +141,8 @@
         # Get updated VM object and return it
         If ( $CimSession ) {
             $VM = Get-VM -Name $Name -CimSession $CimSession
-        } Else {
+        }
+        Else {
             $VM = Get-VM -Name $Name -ComputerName $Host
         }
         Return $VM

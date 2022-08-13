@@ -31,8 +31,8 @@ If ( $targetVM -ne $Null ) {
     Do {
         $targetVM = Get-VM | Where-Object { $_.name -eq $templateVM_Name }
         Switch ($TargetVM.PowerState) {
-                {$_ -eq "PoweredOff"}{$Seconds = 0; break}
-                {$_ -eq "PoweredOn"}{$Seconds = 10; break}
+            { $_ -eq "PoweredOff" } { $Seconds = 0; break }
+            { $_ -eq "PoweredOn" } { $Seconds = 10; break }
         }
         Start-Sleep $Seconds
     } Until ( $targetVM.PowerState -eq "PoweredOff" )
@@ -118,12 +118,14 @@ Do {
             $Seconds = 30
             $tsStarted = $False
             Write-Verbose "Waiting for task sequence to begin..."
-        } Else {
+        }
+        Else {
             $Seconds = 0
             $tsStarted = $True
             Write-Verbose "Task sequence has begun. Moving to monitoring phase."
         }
-    } Else {
+    }
+    Else {
         $Seconds = 30
         $tsStarted = $False
         Write-Verbose "Waiting for task sequence to begin..."
@@ -140,10 +142,10 @@ Do {
         If ( $InProgress.StepName.Length -eq 0 ) { $StatusText = "Waiting for update" } Else { $StatusText = $InProgress.StepName }
         Write-Progress -Activity "Task sequence in progress" -Status $StatusText -PercentComplete $InProgress.PercentComplete
         Switch ($InProgress.PercentComplete) {
-            {$_ -lt 25}{$Seconds = 35; break}
-            {$_ -lt 50}{$Seconds = 30; break}
-            {$_ -lt 75}{$Seconds = 10; break}
-            {$_ -lt 100}{$Seconds = 5; break}
+            { $_ -lt 25 } { $Seconds = 35; break }
+            { $_ -lt 50 } { $Seconds = 30; break }
+            { $_ -lt 75 } { $Seconds = 10; break }
+            { $_ -lt 100 } { $Seconds = 5; break }
         }
         Start-Sleep -Seconds $Seconds
     }
@@ -157,8 +159,8 @@ If ( $targetVM -ne $Null ) {
     Do {
         $targetVM = Get-VM | Where-Object { $_.name -eq $templateVM_Name }
         Switch ($TargetVM.PowerState) {
-                {$_ -eq "PoweredOff"}{$Seconds = 0; break}
-                {$_ -eq "PoweredOn"}{$Seconds = 10; break}
+            { $_ -eq "PoweredOff" } { $Seconds = 0; break }
+            { $_ -eq "PoweredOn" } { $Seconds = 10; break }
         }
         Start-Sleep $Seconds
     } Until ( $targetVM.PowerState -eq "PoweredOff" )
@@ -188,23 +190,23 @@ Start-Sleep 5
 # Import the newly cloned VMs into vCenter 
 # http://www.wooditwork.com/2011/08/11/adding-vmx-files-to-vcenter-inventory-with-powercli-gets-even-easier/
 foreach ($Datastore in Get-Datastore $vmDatastore) {
-   Write-Verbose "Searching datastore for new VMs..."
+    Write-Verbose "Searching datastore for new VMs..."
 
-   # Set up Search for .VMX Files in Datastore
-   $ds = Get-Datastore -Name $Datastore | %{Get-View $_.Id}
-   $SearchSpec = New-Object VMware.Vim.HostDatastoreBrowserSearchSpec
-   $SearchSpec.matchpattern = "*.vmx"
-   $dsBrowser = Get-View $ds.browser
-   $DatastorePath = "[" + $ds.Summary.Name + "]"
+    # Set up Search for .VMX Files in Datastore
+    $ds = Get-Datastore -Name $Datastore | % { Get-View $_.Id }
+    $SearchSpec = New-Object VMware.Vim.HostDatastoreBrowserSearchSpec
+    $SearchSpec.matchpattern = "*.vmx"
+    $dsBrowser = Get-View $ds.browser
+    $DatastorePath = "[" + $ds.Summary.Name + "]"
  
-   # Find all .VMX file paths in Datastore, filtering out ones with .snapshot (Useful for NetApp NFS)
-   $SearchResult = $dsBrowser.SearchDatastoreSubFolders($DatastorePath, $SearchSpec) | Where-Object {$_.FolderPath -notmatch ".snapshot" -and $_.FolderPath -notmatch $templateVM_Name } | %{$_.FolderPath + ($_.File | Select-Object Path).Path}
+    # Find all .VMX file paths in Datastore, filtering out ones with .snapshot (Useful for NetApp NFS)
+    $SearchResult = $dsBrowser.SearchDatastoreSubFolders($DatastorePath, $SearchSpec) | Where-Object { $_.FolderPath -notmatch ".snapshot" -and $_.FolderPath -notmatch $templateVM_Name } | % { $_.FolderPath + ($_.File | Select-Object Path).Path }
  
-   #Register all .vmx Files as VMs on the datastore
-   Write-Verbose "Adding VMs to inventory..."
-   foreach($VMXFile in $SearchResult) {
-      New-VM -VMFilePath $VMXFile -VMHost $vmHost -Location $vmFolder -RunAsync
-   }
+    #Register all .vmx Files as VMs on the datastore
+    Write-Verbose "Adding VMs to inventory..."
+    foreach ($VMXFile in $SearchResult) {
+        New-VM -VMFilePath $VMXFile -VMHost $vmHost -Location $vmFolder -RunAsync
+    }
 }
 Start-Sleep 2
 
@@ -267,9 +269,9 @@ Write-Verbose "Desktop catalog complete."
 Write-Verbose "Creating a Desktop Group and assigning VMs to users..."
 $desktopGroup = New-BrokerDesktopGroup -AdminAddress $adminAddress -DesktopKind 'Private' -Name $desktopGroupName -OffPeakBufferSizePercent 10 -PeakBufferSizePercent 10 -PublishedName $publishedDesktopName -ShutdownDesktopsAfterUse $False -TimeZone $timeZone
 Add-BrokerMachine -AdminAddress $adminAddress -InputObject @($machineIDs) -DesktopGroup $desktopGroupName
-New-BrokerAccessPolicyRule -AdminAddress $adminAddress -AllowedConnections 'NotViaAG' -AllowedProtocols @('RDP','HDX') -AllowedUsers 'AnyAuthenticated' -AllowRestart $True -Enabled $True -IncludedDesktopGroupFilterEnabled $True -IncludedDesktopGroups @($desktopGroupName) -IncludedSmartAccessFilterEnabled $True -IncludedUserFilterEnabled $True -Name "$($desktopGroupName)_Direct"
-New-BrokerAccessPolicyRule -AdminAddress $adminAddress -AllowedConnections 'ViaAG' -AllowedProtocols @('RDP','HDX') -AllowedUsers 'AnyAuthenticated' -AllowRestart $True -Enabled $True -IncludedDesktopGroupFilterEnabled $True -IncludedDesktopGroups @($desktopGroupName) -IncludedSmartAccessFilterEnabled $True -IncludedSmartAccessTags @() -IncludedUserFilterEnabled $True -Name "$($desktopGroupName)_AG"
-New-BrokerPowerTimeScheme -AdminAddress $adminAddress -DaysOfWeek 'Weekdays' -DesktopGroupUid $desktopGroup.Uid -DisplayName 'Weekdays' -Name "$($desktopGroupName)_Weekdays" -PeakHours @($False,$False,$False,$False,$False,$False,$False,$True,$True,$True,$True,$True,$True,$True,$True,$True,$True,$True,$True,$False,$False,$False,$False,$False) -PoolSize @(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
-New-BrokerPowerTimeScheme -AdminAddress $adminAddress -DaysOfWeek 'Weekend' -DesktopGroupUid $desktopGroup.Uid -DisplayName 'Weekend' -Name "$($desktopGroupName)_Weekend" -PeakHours @($False,$False,$False,$False,$False,$False,$False,$True,$True,$True,$True,$True,$True,$True,$True,$True,$True,$True,$True,$False,$False,$False,$False,$False) -PoolSize @(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+New-BrokerAccessPolicyRule -AdminAddress $adminAddress -AllowedConnections 'NotViaAG' -AllowedProtocols @('RDP', 'HDX') -AllowedUsers 'AnyAuthenticated' -AllowRestart $True -Enabled $True -IncludedDesktopGroupFilterEnabled $True -IncludedDesktopGroups @($desktopGroupName) -IncludedSmartAccessFilterEnabled $True -IncludedUserFilterEnabled $True -Name "$($desktopGroupName)_Direct"
+New-BrokerAccessPolicyRule -AdminAddress $adminAddress -AllowedConnections 'ViaAG' -AllowedProtocols @('RDP', 'HDX') -AllowedUsers 'AnyAuthenticated' -AllowRestart $True -Enabled $True -IncludedDesktopGroupFilterEnabled $True -IncludedDesktopGroups @($desktopGroupName) -IncludedSmartAccessFilterEnabled $True -IncludedSmartAccessTags @() -IncludedUserFilterEnabled $True -Name "$($desktopGroupName)_AG"
+New-BrokerPowerTimeScheme -AdminAddress $adminAddress -DaysOfWeek 'Weekdays' -DesktopGroupUid $desktopGroup.Uid -DisplayName 'Weekdays' -Name "$($desktopGroupName)_Weekdays" -PeakHours @($False, $False, $False, $False, $False, $False, $False, $True, $True, $True, $True, $True, $True, $True, $True, $True, $True, $True, $True, $False, $False, $False, $False, $False) -PoolSize @(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+New-BrokerPowerTimeScheme -AdminAddress $adminAddress -DaysOfWeek 'Weekend' -DesktopGroupUid $desktopGroup.Uid -DisplayName 'Weekend' -Name "$($desktopGroupName)_Weekend" -PeakHours @($False, $False, $False, $False, $False, $False, $False, $True, $True, $True, $True, $True, $True, $True, $True, $True, $True, $True, $True, $False, $False, $False, $False, $False) -PoolSize @(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 Write-Verbose "Deployment complete."

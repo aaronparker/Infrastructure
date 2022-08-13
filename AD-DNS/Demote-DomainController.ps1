@@ -4,11 +4,11 @@
 
 Import-Module ADDSDeployment
 Uninstall-ADDSDomainController `
--DemoteOperationMasterRole:$true `
--DnsDelegationRemovalCredential (Get-Credential) `
--IgnoreLastDnsServerForZone:$true `
--RemoveDnsDelegation:$true `
--RemoveApplicationPartitions:$true `
--IgnoreLastDCInDomainMismatch:$true `
--Force:$true
+    -DemoteOperationMasterRole:$true `
+    -DnsDelegationRemovalCredential (Get-Credential) `
+    -IgnoreLastDnsServerForZone:$true `
+    -RemoveDnsDelegation:$true `
+    -RemoveApplicationPartitions:$true `
+    -IgnoreLastDCInDomainMismatch:$true `
+    -Force:$true
 

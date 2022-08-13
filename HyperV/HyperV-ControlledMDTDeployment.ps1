@@ -31,8 +31,8 @@ If ( $TargetVM -ne $Null ) {
     Do {
         $TargetVM = Get-VM | Where-Object { $_.name -eq $TargetVM_Name }
         Switch ($TargetVM.State) {
-                {$_ -eq "Off"}{$Seconds = 0; break}
-                {$_ -eq "Running"}{$Seconds = 10; break}
+            { $_ -eq "Off" } { $Seconds = 0; break }
+            { $_ -eq "Running" } { $Seconds = 10; break }
         }
         Start-Sleep $Seconds
     } Until ( $TargetVM.State -eq "Off" )
@@ -50,8 +50,8 @@ Set-VM -Name $TargetVM_Name -ProcessorCount 2 -AutomaticStartAction Nothing -Aut
 
 # Get the target VM's UUID
 Write-Verbose "Retrieving target VM's UUID." -ForegroundColor Green
-$UUIDs = Get-VM -ComputerName $VMHostName | Select-Object Name,VMId,@{Name="BIOSGUID";Expression={(Get-WmiObject -ComputerName $_.ComputerName -Namespace "root\virtualization" -Class Msvm_VirtualSystemSettingData -Property BIOSGUID -Filter ("InstanceID = 'Microsoft:{0}'" -f $_.VMId.Guid)).BIOSGUID}}
-$UUID = $UUIDs | Where-Object { $_.Name -eq $TargetVM_Name } | Select BIOSGUID
+$UUIDs = Get-VM -ComputerName $VMHostName | Select-Object Name, VMId, @{Name = "BIOSGUID"; Expression = { (Get-WmiObject -ComputerName $_.ComputerName -Namespace "root\virtualization" -Class Msvm_VirtualSystemSettingData -Property BIOSGUID -Filter ("InstanceID = 'Microsoft:{0}'" -f $_.VMId.Guid)).BIOSGUID } }
+$UUID = $UUIDs | Where-Object { $_.Name -eq $TargetVM_Name } | select BIOSGUID
 $TargetVMUUID = $UUID.BIOSGUID -Replace "{", ""
 $TargetVMUUID = $TargetVMUUID -Replace "}", ""
 
@@ -69,8 +69,8 @@ If (!(Test-Path "$DeploymentShare\Control\CustomSettings-Backup.ini")) { Copy-It
 
 # Create new content for the INI file and write back to the file
 Write-Verbose "Adding control section for $TargetVM_Name." -ForegroundColor Green
-$Category1 = @{"OSDComputerName"=$TargetVM_OSName;"TaskSequenceID"=$TaskSequenceID;"MachineObjectOU"=$MachineObjectOU;"WindowsUpdate"="FALSE";"SkipSummary"="YES";"SkipTaskSequence"="YES";"SkipApplications"="YES";"SkipLocaleSelection"="YES";"SkipDomainMembership"="YES";"SkipTimeZone"="YES";"SkipComputerName"="YES";"SkipUserData"="YES";"SkipComputerBackup"="YES"}
-$NewINIContent = @{$TargetVMUUID=$Category1}
+$Category1 = @{"OSDComputerName" = $TargetVM_OSName; "TaskSequenceID" = $TaskSequenceID; "MachineObjectOU" = $MachineObjectOU; "WindowsUpdate" = "FALSE"; "SkipSummary" = "YES"; "SkipTaskSequence" = "YES"; "SkipApplications" = "YES"; "SkipLocaleSelection" = "YES"; "SkipDomainMembership" = "YES"; "SkipTimeZone" = "YES"; "SkipComputerName" = "YES"; "SkipUserData" = "YES"; "SkipComputerBackup" = "YES" }
+$NewINIContent = @{$TargetVMUUID = $Category1 }
 Write-Verbose "Writing to CustomSettings.ini." -ForegroundColor Green
 Out-IniFile -InputObject $NewINIContent -FilePath $CustomSettingsINI -Force ASCII -Append
 
@@ -93,12 +93,14 @@ Do {
             $Seconds = 30
             $TSStarted = $False
             Write-Verbose "Waiting for task sequence to begin..." -ForegroundColor Green
-        } Else {
+        }
+        Else {
             $Seconds = 0
             $TSStarted = $True
             Write-Verbose "Task sequence has begun. Moving to monitoring phase." -ForegroundColor Green
         }
-    } Else {
+    }
+    Else {
         $Seconds = 30
         $TSStarted = $False
         Write-Verbose "Waiting for task sequence to begin..." -ForegroundColor Green
@@ -118,10 +120,10 @@ Do {
         If ( $InProgress.StepName.Length -eq 0 ) { $StatusText = "Waiting for update" } Else { $StatusText = $InProgress.StepName }
         Write-Progress -Activity "Task sequence in progress" -Status $StatusText -PercentComplete $InProgress.PercentComplete
         Switch ($InProgress.PercentComplete) {
-            {$_ -lt 25}{$Seconds = 35; break}
-            {$_ -lt 50}{$Seconds = 30; break}
-            {$_ -lt 75}{$Seconds = 10; break}
-            {$_ -lt 100}{$Seconds = 0; break}
+            { $_ -lt 25 } { $Seconds = 35; break }
+            { $_ -lt 50 } { $Seconds = 30; break }
+            { $_ -lt 75 } { $Seconds = 10; break }
+            { $_ -lt 100 } { $Seconds = 0; break }
         }
         Start-Sleep -Seconds $Seconds
     }

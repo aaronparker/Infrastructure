@@ -1,7 +1,6 @@
 ﻿# Load the PowerCLI module
 Add-PSSnapin "vmware.VimAutomation.core" -ErrorAction SilentlyContinue
-If ((Get-PSSnapin -Registered | Where-Object { $_.Name -eq "VMware.DeployAutomation" }) -eq $null)
-{
+If ((Get-PSSnapin -Registered | Where-Object { $_.Name -eq "VMware.DeployAutomation" }) -eq $null) {
     Exit 1
 }
 

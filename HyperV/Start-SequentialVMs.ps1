@@ -28,16 +28,16 @@
  
     #>
     param(
-        [Parameter(Mandatory=$true, Position=0,HelpMessage="Hyper-V host.")]
+        [Parameter(Mandatory = $true, Position = 0, HelpMessage = "Hyper-V host.")]
         [string]$ComputerName = $(throw = "Please specify a remote Hyper-V host to start VMs on."),
 
-        [Parameter(Mandatory=$true, Position=1,HelpMessage="List of VMs to start.")]
+        [Parameter(Mandatory = $true, Position = 1, HelpMessage = "List of VMs to start.")]
         [string[]]$VMList = $(throw = "Please specifiy a list of VMs to start"),
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [int]$Wait = 180,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [bool]$ShowProgress
     )
 
@@ -52,7 +52,7 @@
     ForEach ( $vm in $VMList ) {
 
         # Convert current location in list of VMs to a percentage
-        $Percent = ($VMList.IndexOf($vm)/$VMList.Count) * 100
+        $Percent = ($VMList.IndexOf($vm) / $VMList.Count) * 100
 
         # Show progress if specified on the command line
         If ($ShowProgress -eq $True) { Write-Progress -Activity "Starting VMs." -Status "Starting VM $vm." -PercentComplete $Percent }
@@ -70,28 +70,30 @@
                 # Wait for VM to boot and report a heartbeat
                 Write-Verbose "Waiting for VM heartbeat."
                 Do {
-                    Start-Sleep -milliseconds 100
-                } Until ((Get-VMIntegrationService $currentVM | ?{$_.name -eq "Heartbeat"}).PrimaryStatusDescription -eq "OK")
+                    Start-Sleep -Milliseconds 100
+                } Until ((Get-VMIntegrationService $currentVM | ? { $_.name -eq "Heartbeat" }).PrimaryStatusDescription -eq "OK")
 
                 # Wait the specified number of seconds before booting the next VM, unless this is the last VM in the list
-                If ($Wait -gt 0 -and $VMList.IndexOf($vm) -lt ($VMList.Count-1)) {
+                If ($Wait -gt 0 -and $VMList.IndexOf($vm) -lt ($VMList.Count - 1)) {
                     Write-Verbose "Waiting for $Wait seconds before starting next VM."
                     Start-Sleep -Seconds $Wait
                 }
 
-            } Else {
+            }
+            Else {
                 Write-Verbose "VM $vm already running."
             }
 
-        } Else {
+        }
+        Else {
             Write-Error -Message "Unable to find VM $vm on host $ComputerName." -Category ObjectNotFound
         }
 
-     }
+    }
 
-     Write-Verbose "Started VMs."
+    Write-Verbose "Started VMs."
 
-     # Show progress if specified on the command line
-     If ($ShowProgress -eq $True) { Write-Progress -Activity "Starting VMs." -Status "Started all VMs." -PercentComplete 100 }
-     Start-Sleep -Seconds 1
+    # Show progress if specified on the command line
+    If ($ShowProgress -eq $True) { Write-Progress -Activity "Starting VMs." -Status "Started all VMs." -PercentComplete 100 }
+    Start-Sleep -Seconds 1
 }

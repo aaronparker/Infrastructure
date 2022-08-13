@@ -38,19 +38,19 @@
     #>
     [CmdletBinding(SupportsShouldProcess = $False, ConfirmImpact = "High", DefaultParameterSetName = "Auth")]
     PARAM (
-        [Parameter(Mandatory=$True, HelpMessage="Specify a virtual machine to delete.")]
+        [Parameter(Mandatory = $True, HelpMessage = "Specify a virtual machine to delete.")]
         [string[]]$VM,
         
-        [Parameter(ParameterSetName="Auth", Mandatory=$False, HelpMessage="Specify a host where the target virtual machine exists.")]
+        [Parameter(ParameterSetName = "Auth", Mandatory = $False, HelpMessage = "Specify a host where the target virtual machine exists.")]
         [string]$ComputerName = $env:COMPUTERNAME,
 
-        [Parameter(ParameterSetName="Auth", Mandatory=$False, HelpMessage="Specify a username used to connect to a remote Hyper-V host.")]
+        [Parameter(ParameterSetName = "Auth", Mandatory = $False, HelpMessage = "Specify a username used to connect to a remote Hyper-V host.")]
         [string]$Username,
         
-        [Parameter(ParameterSetName="Auth", Mandatory=$False, HelpMessage="Specify a password for authentication with the specified username.")]
+        [Parameter(ParameterSetName = "Auth", Mandatory = $False, HelpMessage = "Specify a password for authentication with the specified username.")]
         [string]$Password,
         
-        [Parameter(ParameterSetName="Cim", Mandatory=$False)]
+        [Parameter(ParameterSetName = "Cim", Mandatory = $False)]
         [Microsoft.Management.Infrastructure.CimSession]$CimSession        
     )
     
@@ -58,30 +58,30 @@
         
         # If username/password passed to function, create a CIM session to authenticate to remote host
         If ($PSBoundParameters['Username']) {
-                If ($PSBoundParameters['Password']) {
+            If ($PSBoundParameters['Password']) {
                     
-                    # Convert a string to a secure string and create a credential object
-                    $SecurePassword = ConvertTo-SecureString -String $Password -AsPlainText -Force
-                    $cred = New-Object -typename System.Management.Automation.PSCredential -argumentlist $Username, $SecurePassword
+                # Convert a string to a secure string and create a credential object
+                $SecurePassword = ConvertTo-SecureString -String $Password -AsPlainText -Force
+                $cred = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $Username, $SecurePassword
                     
-                    # Try a connection to the remote host before creating the CIM session
-                    Try {
-                        Test-Connection -ComputerName $ComputerName -Count 1 -ErrorVariable TestError -ErrorAction Stop
-                    }
-                    Catch {
-                        Write-Error "Failed to connect with error: " $TestError
-                        Return
-                    }
-                    
-                    Try {
-                        $cim = New-CimSession -Credential $cred -ComputerName $ComputerName -ErrorVariable CimError -ErrorAction Stop    
-                    }
-                    Catch {
-                        Write-Error "Failed to to create CIM session with: " $CimError
-                        Return
-                    }
-                    
+                # Try a connection to the remote host before creating the CIM session
+                Try {
+                    Test-Connection -ComputerName $ComputerName -Count 1 -ErrorVariable TestError -ErrorAction Stop
                 }
+                Catch {
+                    Write-Error "Failed to connect with error: " $TestError
+                    Return
+                }
+                    
+                Try {
+                    $cim = New-CimSession -Credential $cred -ComputerName $ComputerName -ErrorVariable CimError -ErrorAction Stop    
+                }
+                Catch {
+                    Write-Error "Failed to to create CIM session with: " $CimError
+                    Return
+                }
+                    
+            }
         }
 
         # If a CIM session passed just use that. (no need to pass one CIM session into another, though)
@@ -98,7 +98,7 @@
             $machine = Get-VM -CimSession $cim -Name $v -ErrorVariable Error -ErrorAction SilentlyContinue
             $VHDs = $machine | Get-VMHardDiskDrive
             Invoke-Command -ComputerName $ComputerName -Credential $cred -ScriptBlock { param($VHDs) ForEach ( $vhd in $VHDs) { Remove-Item -Path $vhd.Path -Force -Confirm:$False -Verbose } } -Args $VHDs
-			$machine | Remove-VM -Force -Verbose
+            $machine | Remove-VM -Force -Verbose
         }
     }
 }

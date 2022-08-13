@@ -5,11 +5,13 @@ Function Get-AvailableModule {
             Import-Module -Name $Name
             Return $True
             # If module available then import
-        } Else {
+        }
+        Else {
             Return $False
             # Module not available
         }
-    } Else {
+    }
+    Else {
         Return $True
         # Module already loaded
     }
