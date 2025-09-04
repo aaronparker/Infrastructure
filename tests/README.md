@@ -12,4 +12,4 @@ Invoke-Pester -Script .\Windows101903.Tests.ps1 -OutputFormat NUnitXml -OutputFi
 
 The output should look similar to the screenshot below:
 
-![Pester output](https://raw.githubusercontent.com/aaronparker/Infrastructure/master/Tests/PesterOutput.PNG)
+![Pester output](https://raw.githubusercontent.com/aaronparker/Infrastructure/master/tests/PesterOutput.PNG)
